@@ -1,0 +1,14 @@
+# Node deps and lock files (keep lockfile if you want determinism)
+node_modules/
+
+# Build outputs (optional: see note below)
+dist/
+
+# Local env / secrets
+.env
+.env.*.local
+
+# Editor / OS cruft
+.DS_Store
+.vscode/
+.idea/
