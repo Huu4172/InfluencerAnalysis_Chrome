@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@plugin "daisyui";
+/* Custom global styles can go here */
+
+/* example fixed width for popup */
+.popup-root {
+  width: 360px;
+  box-sizing: border-box;
+  padding: 12px;
+}
