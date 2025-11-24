@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 declare const chrome: any
 
 export default function Popup(): React.ReactElement {
-  const [email, setEmail] = useState('')
+  const [website, setWebsite] = useState('')
 
   return (
     // Use a fixed width for the popup so Chrome sizes the popup consistently.
@@ -29,20 +29,20 @@ export default function Popup(): React.ReactElement {
               </g>
             </svg>
             <input
-              type="email"
-              placeholder="mail@site.com"
+              type="url"
+              placeholder="https://example.com"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
             />
           </label>
-          <div className="validator-hint hidden">Enter valid email address</div>
+          <div className="validator-hint hidden">Enter a valid URL</div>
         </div>
-        <button
+          <button
           className="btn btn-neutral join-item"
           onClick={() => {
             // Send the input to the background service worker for logging/storage
-            chrome.runtime.sendMessage({ type: 'logInput', payload: { email } }, (resp: any) => {
+            chrome.runtime.sendMessage({ type: 'logInput', payload: { website } }, (resp: any) => {
               console.log('background response', resp)
             })
           }}
