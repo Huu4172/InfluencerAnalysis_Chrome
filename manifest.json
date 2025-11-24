@@ -3,6 +3,10 @@
   "description": "Base Level Extension",
   "version": "1.0",
   "manifest_version": 3,
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "dist/popup.html",
     "default_icon": "test_photo.png"
