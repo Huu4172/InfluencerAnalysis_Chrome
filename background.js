@@ -40,6 +40,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
   }
 
+  if (message.type === 'analyseURL') {
+    const urlToAnalyse = message.payload.website;
+
+    console.log('[background] Analyse URL from message payload:', urlToAnalyse)
+
+    // Create a background tab to scrape data in the URL
+    chrome.tabs.create({url: urlToAnalyse, active: false}, (tab) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id},
+        //callback after having access to the page
+        func: () => {
+          return document.documentElement.outerHTML;
+        }
+      }, 
+      (results) => {
+		//Check for error from previous execution
+        if (chrome.runtime.lastError) {
+          console.error('[background] Script execution failed: ', chrome.runtime.lastError);
+          if (sendResponse) sendResponse({ ok: false, error: chrome.runtime.lastError.message || String(chrome.runtime.lastError) });
+          chrome.tabs.remove(tab.id);
+          return;
+        }
+        const pageHTML = results[0].result;
+        console.log('[background] Retrieved page HTML for analysis.');
+        
+        // Send the HTML back to the sender
+        if (sendResponse) sendResponse({ ok: true, html: pageHTML });
+        
+        // Close the tab after scraping
+        chrome.tabs.remove(tab.id);
+      });
+    });
+
+
+    // Keep the message channel open for async response
+    return true
+  }
+
   // Return true to indicate asynchronous sendResponse (not used here but safe)
   return true
 })

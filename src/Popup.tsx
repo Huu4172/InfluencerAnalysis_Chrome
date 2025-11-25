@@ -42,7 +42,7 @@ export default function Popup(): React.ReactElement {
           className="btn btn-neutral join-item"
           onClick={() => {
             // Send the input to the background service worker for logging/storage
-            chrome.runtime.sendMessage({ type: 'logInput', payload: { website } }, (resp: any) => {
+            chrome.runtime.sendMessage({ type: 'analyseURL', payload: { website } }, (resp: any) => {
               console.log('background response', resp)
             })
           }}
