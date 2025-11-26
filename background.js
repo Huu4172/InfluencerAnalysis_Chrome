@@ -40,13 +40,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
   }
 
-  if (message.type === 'analyseURL') {
-    const urlToAnalyse = message.payload.website;
+    if (message.type === 'analyseURL') {
+        const urlToAnalyse = message.payload.website;
 
     console.log('[background] Analyse URL from message payload:', urlToAnalyse)
 
-    // Create a background tab to scrape data in the URL
-    chrome.tabs.create({url: urlToAnalyse, active: false}, (tab) => {
+    // Create a background tab (incognito) to scrape data in the URL
+    // Incognito is used as no chrome extension can be activated in the mode
+    // This creates a seamless experience for users
+    chrome.tabs.create({
+        url: urlToAnalyse, 
+        active: false, 
+        incognito: true
+    }, (tab) => {
       chrome.scripting.executeScript({
         target: { tabId: tab.id},
         //callback after having access to the page
@@ -75,9 +81,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 
     // Keep the message channel open for async response
-    return true
-  }
+    return true 
+};
 
   // Return true to indicate asynchronous sendResponse (not used here but safe)
   return true
-})
+});
