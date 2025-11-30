@@ -10,7 +10,7 @@ export default function Popup(): React.ReactElement {
     // Use a fixed width for the popup so Chrome sizes the popup consistently.
     // Tailwind `w-80` = 20rem = 320px. Adjust to taste (w-72, w-80, w-96 etc.).
     <div className="w-80 p-4" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <h3>Extension popup</h3>
+      <h3 style={{ marginBottom: '8px' }}>Extension popup</h3>
       <p>Hello from React + TypeScript!</p>
 
       <div className="join">
@@ -41,13 +41,13 @@ export default function Popup(): React.ReactElement {
           <button
           className="btn btn-neutral join-item"
           onClick={() => {
-            // Send the input to the background service worker for logging/storage
+            // Send the input to the background service worker for analysis
             chrome.runtime.sendMessage({ type: 'analyseURL', payload: { website } }, (resp: any) => {
               console.log('background response', resp)
             })
           }}
         >
-          Join
+          Analyse
         </button>
       </div>
     </div>

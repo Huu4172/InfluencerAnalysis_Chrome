@@ -7,14 +7,14 @@
     [
       "storage", 
       "tabs", 
-      "scripting"
+      "scripting",
+      "windows"
     ],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "dist/popup.html",
     "default_icon": "test_photo.png"
   }
 }
