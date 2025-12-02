@@ -220,6 +220,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log('[background] Follower count:', result.followers);
         console.log('[background] Found:', result.found);
         console.log('[background] posts length:', result.posts.length);
+
+        // Extract all tags from posts
+        const allTags = [];
+        for (const post of result.posts) {
+          if (post.tags && Array.isArray(post.tags)) {
+            allTags.push(...post.tags);
+          }
+        }
+
+        // Data to be uploaded - only tags
+        const uploadData = {
+          tags: allTags
+        };
+
+        console.log('[background] Uploading data to S3 via Lambda...', uploadData);
+
+        // Upload to S3 via Lambda
+        fetch('https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(uploadData)
+        })
+        .then(res => res.json())
+        .then(data => {
+          console.log('[background] Uploaded to S3:', data.key);
+          sendResponse({ ...result, s3Key: data.key });
+        })
+        .catch(err => {
+          console.error('[background] S3 upload failed:', err);
+          sendResponse(result); // Still return scraped data
+        });
         
         
         // Send the data back to the sender
