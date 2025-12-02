@@ -3,7 +3,9 @@ import boto3
 from datetime import datetime
 
 s3 = boto3.client('s3')
+dynamodb = boto3.client('dynamodb')
 BUCKET_NAME = 'scrapesstoragebucket'
+TABLE_NAME = 'TikTokUsers'
 
 def lambda_handler(event, context):
     try:
@@ -22,6 +24,17 @@ def lambda_handler(event, context):
             ContentType='application/json'
         )
         
+        # Write to DynamoDB
+        dynamodb.put_item(
+            TableName=TABLE_NAME,
+            Item = {
+                'username' : {'S': body.get('username', 'unknown')},
+                'followcount' : {'N': str(body.get('followers', '-1'))},
+                'categories': {'L': []},
+                'lastUpdate': {'S': datetime.now().isoformat()}
+            })
+
+        
         return {
             'statusCode': 200,
             'headers': {
@@ -31,7 +44,8 @@ def lambda_handler(event, context):
             'body': json.dumps({
                 'ok': True,
                 'key': key,
-                'bucket': BUCKET_NAME
+                'bucket': BUCKET_NAME,
+                'message': "Data uploaded and recorded successfully"
             })
         }
         
@@ -44,6 +58,7 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({
                 'ok': False,
-                'error': str(e)
+                'error': str(e),
+                'message': "Failed to upload and record data"
             })
         }
