@@ -231,6 +231,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Data to be uploaded - only tags
         const uploadData = {
+          username: result.url.split('@')[1]?.split('/')[0] || 'unknown', // Assuming username is the URL or you can extract it accordingly
+          followers: result.followers,
           tags: allTags
         };
 
@@ -244,29 +246,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
         .then(res => res.json())
         .then(data => {
-          console.log('[background] Uploaded to S3:', data.key);
-          sendResponse({ ...result, s3Key: data.key });
+          console.log('[background] Uploaded to DynamoDB and S3:', data);
+          sendResponse({ 
+            ok: true, 
+            html: result.html,
+            followers: result.followers,
+            platform: result.platform,
+            found: result.found,
+            url: result.url,
+            posts: result.posts || [],
+            debugLogs: result.debugLogs || [],
+            s3Key: data.key
+          });
+          // Close the tab after successful upload
+          chrome.tabs.remove(tab.id);
         })
         .catch(err => {
-          console.error('[background] S3 upload failed:', err);
-          sendResponse(result); // Still return scraped data
+          console.error('[background] Upload failed:', err);
+          sendResponse({ 
+            ok: false, 
+            error: err.message,
+            ...result
+          });
+          // Close the tab even if upload fails
+          chrome.tabs.remove(tab.id);
         });
-        
-        
-        // Send the data back to the sender
-        if (sendResponse) sendResponse({ 
-          ok: true, 
-          html: result.html,
-          followers: result.followers,
-          platform: result.platform,
-          found: result.found,
-          url: result.url,
-          posts: result.posts || [],
-          debugLogs: result.debugLogs || []
-        });
-        
-        // Close the tab after scraping
-        chrome.tabs.remove(tab.id);
       });
     });
 

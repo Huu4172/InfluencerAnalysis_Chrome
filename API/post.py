@@ -29,8 +29,9 @@ def lambda_handler(event, context):
             TableName=TABLE_NAME,
             Item = {
                 'username' : {'S': body.get('username', 'unknown')},
-                'followcount' : {'N': str(body.get('followers', '-1'))},
-                'categories': {'L': []},
+                'name': {'S': body.get('username', 'unknown')},
+                'followcount' : {'S': body.get('followers', 'unknown')},
+                'categories': {'L': []}, 
                 'lastUpdate': {'S': datetime.now().isoformat()}
             })
 
