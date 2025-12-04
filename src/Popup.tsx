@@ -5,6 +5,8 @@ declare const chrome: any
 
 export default function Popup(): React.ReactElement {
   const [website, setWebsite] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [status, setStatus] = useState('')
 
   return (
     // Use a fixed width for the popup so Chrome sizes the popup consistently.
@@ -40,16 +42,45 @@ export default function Popup(): React.ReactElement {
         </div>
           <button
           className="btn btn-neutral join-item"
+          disabled={isLoading || !website}
           onClick={() => {
             // Send the input to the background service worker for analysis
+            setIsLoading(true)
+            setStatus('Scraping profile...')
+            
             chrome.runtime.sendMessage({ type: 'analyseURL', payload: { website } }, (resp: any) => {
               console.log('background response', resp)
+              setIsLoading(false)
+              
+              if (resp?.ok) {
+                setStatus(`✓ Success! Found ${resp.followers} followers and ${resp.posts?.length || 0} posts`)
+              } else if (resp?.error) {
+                setStatus(`✗ Error: ${resp.error}`)
+              } else {
+                setStatus('✓ Analysis complete')
+              }
+              
+              // Clear status after 5 seconds
+              setTimeout(() => setStatus(''), 5000)
             })
           }}
         >
-          Analyse
+          {isLoading ? 'Analyzing...' : 'Analyse'}
         </button>
       </div>
+
+      {isLoading && (
+        <div className="mt-4 flex items-center gap-2">
+          <span className="loading loading-ring loading-md"></span>
+          <span className="text-sm">{status}</span>
+        </div>
+      )}
+      
+      {!isLoading && status && (
+        <div className="mt-4 text-sm">
+          {status}
+        </div>
+      )}
     </div>
         )
 }
