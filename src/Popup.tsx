@@ -9,12 +9,7 @@ export default function Popup(): React.ReactElement {
   const [status, setStatus] = useState('')
 
   return (
-    // Use a fixed width for the popup so Chrome sizes the popup consistently.
-    // Tailwind `w-80` = 20rem = 320px. Adjust to taste (w-72, w-80, w-96 etc.).
-    <div className="w-80 p-4" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      <h3 style={{ marginBottom: '8px' }}>Extension popup</h3>
-      <p>Hello from React + TypeScript!</p>
-
+    <>
       <div className="join">
         <div>
           <label className="input validator join-item">
@@ -81,6 +76,6 @@ export default function Popup(): React.ReactElement {
           {status}
         </div>
       )}
-    </div>
-        )
+    </>
+  )
 }
