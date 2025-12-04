@@ -16,8 +16,8 @@ chrome.action.onClicked.addListener((tab) => {
     chrome.windows.create({
       url: chrome.runtime.getURL('dist/popup.html'),
       type: 'popup',
-      width: 400,
-      height: 600,
+      width: 640,
+      height: 400,
       focused: true,
       state: 'normal'
     }, (window) => {
