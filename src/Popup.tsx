@@ -9,7 +9,7 @@ export default function Popup(): React.ReactElement {
   const [status, setStatus] = useState('')
 
   return (
-    <>
+    <div className="flex flex-col items-center">
       <div className="join">
         <div>
           <label className="input validator join-item">
@@ -76,6 +76,6 @@ export default function Popup(): React.ReactElement {
           {status}
         </div>
       )}
-    </>
+    </div>
   )
 }

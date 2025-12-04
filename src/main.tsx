@@ -8,7 +8,7 @@ function App() {
   const [currentPage, setCurrentPage] = useState<'analyze' | 'matchmaking'>('analyze')
 
   return (
-    <div className="w-80" style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div className="w-full" style={{ fontFamily: 'system-ui, -apple-system, sans-serif', padding: '1rem' }}>
       {/* Navbar */}
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md">
         <div className="flex w-full">
@@ -36,7 +36,7 @@ function App() {
       </div>
 
       {/* Page Content */}
-      <div className="p-4">
+      <div style={{ padding: '1rem' }}>
         {currentPage === 'analyze' ? <Popup /> : <Matchmaking />}
       </div>
     </div>
