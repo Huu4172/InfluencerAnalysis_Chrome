@@ -10,7 +10,10 @@
       "scripting",
       "windows"
     ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": [
+    "*://*.tiktok.com/*",
+    "https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
