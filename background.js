@@ -62,6 +62,29 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     console.log('[background] Analyse URL from message payload:', urlToAnalyse)
 
+    // Validate URL before proceeding
+    try {
+      const urlObj = new URL(urlToAnalyse);
+      
+      // Check protocol
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL: Must use http or https protocol' });
+        return true;
+      }
+      
+      // Check if it's a TikTok profile URL
+      const isTikTok = urlObj.hostname.includes('tiktok.com');
+      const hasUsername = urlObj.pathname.startsWith('/@') && urlObj.pathname.length > 2;
+      
+      if (!isTikTok || !hasUsername) {
+        if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL: Must be a TikTok profile URL' });
+        return true;
+      }
+    } catch (e) {
+      if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL format' });
+      return true;
+    }
+
     // Create a background tab to scrape data in the URL
     // The tab opens in the background (not focused) for minimal disruption
     chrome.tabs.create({

@@ -36,7 +36,7 @@ export default function Popup(): React.ReactElement {
           <div className="validator-hint hidden">Enter a valid URL</div>
         </div>
           <button
-          className="btn btn-neutral join-item"
+          className={`btn join-item ${!website && !isLoading ? 'btn-disabled opacity-50 cursor-not-allowed' : 'btn-neutral'}`}
           disabled={isLoading || !website}
           onClick={() => {
             // Send the input to the background service worker for analysis
