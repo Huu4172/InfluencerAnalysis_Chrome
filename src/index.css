@@ -2,6 +2,30 @@
 @plugin "daisyui";
 /* Custom global styles can go here */
 
+/* Set dimensions on html and body for Chrome extension popup */
+html {
+  width: 400px;
+  min-height: 500px;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 400px;
+  min-height: 500px;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Ensure root container takes full dimensions */
+#root {
+  width: 400px;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
 /* example fixed width for popup */
 .popup-root {
   width: 360px;
