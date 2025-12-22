@@ -11,22 +11,6 @@ self.addEventListener('activate', () => {
   self.clients && self.clients.claim && self.clients.claim()
 })
 
-chrome.action.onClicked.addListener((tab) => {
-  // Open popup.html in a small popup window when the extension icon is clicked
-    chrome.windows.create({
-      url: chrome.runtime.getURL('dist/popup.html'),
-      type: 'popup',
-      width: 640,
-      height: 400,
-      focused: true,
-      state: 'normal'
-    }, (window) => {
-      // Exit fullscreen if the window was created in fullscreen mode
-      if (window && window.state === 'fullscreen') {
-        chrome.windows.update(window.id, { state: 'minimized' })
-      }
-    })
-})
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || !message.type) return
@@ -57,42 +41,65 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true
   }
 
-    if (message.type === 'analyseURL') {
-        const urlToAnalyse = message.payload.website;
+    if (message.type === 'analyseURL' || message.action === 'scrape') {
+        const urlToAnalyse = message.payload?.website || message.url;
 
     console.log('[background] Analyse URL from message payload:', urlToAnalyse)
 
-    // Validate URL before proceeding
-    try {
-      const urlObj = new URL(urlToAnalyse);
-      
-      // Check protocol
-      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
-        if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL: Must use http or https protocol' });
-        return true;
+    // Query for the active tab (granted by activeTab permission when user clicks extension)
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs || tabs.length === 0) {
+        if (sendResponse) sendResponse({ 
+          ok: false, 
+          success: false,
+          error: 'No active tab found. Please make sure you have a TikTok profile page open.' 
+        });
+        return;
       }
-      
-      // Check if it's a TikTok profile URL
-      const isTikTok = urlObj.hostname.includes('tiktok.com');
-      const hasUsername = urlObj.pathname.startsWith('/@') && urlObj.pathname.length > 2;
-      
-      if (!isTikTok || !hasUsername) {
-        if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL: Must be a TikTok profile URL' });
-        return true;
-      }
-    } catch (e) {
-      if (sendResponse) sendResponse({ ok: false, error: 'Invalid URL format' });
-      return true;
-    }
 
-    // Create a background tab to scrape data in the URL
-    // The tab opens in the background (not focused) for minimal disruption
-    chrome.tabs.create({
-        url: urlToAnalyse, 
-        active: true,
-    }, (tab) => {
+      const activeTab = tabs[0];
+      const currentUrl = activeTab.url;
+
+      console.log('[background] Active tab URL:', currentUrl);
+
+      // Validate the active tab is a TikTok profile URL
+      try {
+        const urlObj = new URL(currentUrl);
+        
+        // Check protocol
+        if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+          if (sendResponse) sendResponse({ 
+            ok: false, 
+            success: false,
+            error: 'Invalid URL: Must use http or https protocol' 
+          });
+          return;
+        }
+        
+        // Check if it's a TikTok profile URL
+        const isTikTok = urlObj.hostname.includes('tiktok.com');
+        const hasUsername = urlObj.pathname.startsWith('/@') && urlObj.pathname.length > 2;
+        
+        if (!isTikTok || !hasUsername) {
+          if (sendResponse) sendResponse({ 
+            ok: false, 
+            success: false,
+            error: 'Current tab is not a TikTok profile. Please navigate to a TikTok profile page (e.g., https://www.tiktok.com/@username) first.' 
+          });
+          return;
+        }
+      } catch (e) {
+        if (sendResponse) sendResponse({ 
+          ok: false, 
+          success: false,
+          error: 'Invalid URL format' 
+        });
+        return;
+      }
+
+      // Execute scraping script on the active tab
       chrome.scripting.executeScript({
-        target: { tabId: tab.id},
+        target: { tabId: activeTab.id },
         //callback after having access to the page
         func: () => {
           // Wait for page to load and extract follower count
@@ -131,7 +138,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               let followers = null;
               let platform = 'unknown';
               let posts = [];
-              let postEmpty = true;
               
 
               // Detect TikTok
@@ -232,8 +238,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		//Check for error from previous execution
         if (chrome.runtime.lastError) {
           console.error('[background] Script execution failed: ', chrome.runtime.lastError);
-          if (sendResponse) sendResponse({ ok: false, error: chrome.runtime.lastError.message || String(chrome.runtime.lastError) });
-          chrome.tabs.remove(tab.id);
+          if (sendResponse) sendResponse({ 
+            ok: false, 
+            success: false,
+            error: chrome.runtime.lastError.message || String(chrome.runtime.lastError) 
+          });
           return;
         }
         
@@ -271,7 +280,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .then(data => {
           console.log('[background] Uploaded to DynamoDB and S3:', data);
           sendResponse({ 
-            ok: true, 
+            ok: true,
+            success: true,
             html: result.html,
             followers: result.followers,
             platform: result.platform,
@@ -279,20 +289,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             url: result.url,
             posts: result.posts || [],
             debugLogs: result.debugLogs || [],
-            s3Key: data.key
+            s3Key: data.key,
+            data: {
+              username: uploadData.username,
+              followers: result.followers,
+              tags: allTags
+            }
           });
-          // Close the tab after successful upload
-          chrome.tabs.remove(tab.id);
         })
         .catch(err => {
           console.error('[background] Upload failed:', err);
           sendResponse({ 
-            ok: false, 
+            ok: false,
+            success: false,
             error: err.message,
             ...result
           });
-          // Close the tab even if upload fails
-          chrome.tabs.remove(tab.id);
         });
       });
     });
