@@ -131,6 +131,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const maxAttempts = 20;
             let attempts = 0;
             let hasScrolled = false;
+            let profileImageUrl = null; // Store profile image URL outside checkForData
+            let displayName = null; // Store display name outside checkForData
             
             const checkForData = async () => {
               attempts++;
@@ -143,10 +145,33 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               // Detect TikTok
               if (window.location.hostname.includes('tiktok.com')) {
                 platform = 'tiktok';
+                
+                // Extract display name (user-subtitle)
+                if (attempts === 1 && !displayName) {
+                  const nameElement = document.querySelector('h2[data-e2e="user-subtitle"]') ||
+                                     document.querySelector('h2[data-e2e="user-title"]') ||
+                                     document.querySelector('[data-e2e="user-page"] h2');
+                  if (nameElement) {
+                    displayName = nameElement.textContent.trim();
+                    console.log('[Scraper] Found display name:', displayName);
+                  }
+                }
+                
                 // Method 1: Look for follower count attribute
                 const followerElement = document.querySelector('strong[data-e2e="followers-count"]');
                 if (followerElement) {
                   followers = followerElement.textContent.trim();
+                }
+
+                // Extract profile image URL (only on first attempt)
+                if (attempts === 1 && !profileImageUrl) {
+                  const profileImg = document.querySelector('img[data-e2e="user-avatar"]') || 
+                                     document.querySelector('span[data-e2e="user-avatar"] img') ||
+                                     document.querySelector('div[data-e2e="user-avatar"] img');
+                  if (profileImg && profileImg.src) {
+                    profileImageUrl = profileImg.src;
+                    console.log('[Scraper] Found profile image:', profileImageUrl);
+                  }
                 }
 
       // Extract up to 3 recent posts with tags
@@ -218,10 +243,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 resolve({
                   html: document.documentElement.outerHTML,
                   followers: followers,
+                  displayName: displayName,
                   platform: platform,
                   found: !!followers,
                   url: window.location.href,
                   posts: posts,
+                  profileImageUrl: profileImageUrl,
                   debugLogs: __logs
                 });
               } else {
@@ -252,6 +279,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log('[background] Follower count:', result.followers);
         console.log('[background] Found:', result.found);
         console.log('[background] posts length:', result.posts.length);
+        console.log('[background] Display Name:', result.displayName);
+        console.log('[background] Profile Image URL:', result.profileImageUrl);
 
         // Extract all tags from posts
         const allTags = [];
@@ -263,9 +292,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Data to be uploaded - only tags
         const uploadData = {
-          username: result.url.split('@')[1]?.split('/')[0] || 'unknown', // Assuming username is the URL or you can extract it accordingly
+          username: result.url.split('@')[1]?.split('/')[0] || 'unknown', // Username from URL (e.g., @username)
+          name: result.displayName || result.url.split('@')[1]?.split('/')[0] || 'unknown', // Display name or fallback to username
           followers: result.followers,
-          tags: allTags
+          tags: allTags,
+          profileImageUrl: result.profileImageUrl || null
         };
 
         console.log('[background] Uploading data to S3 via Lambda...', uploadData);
