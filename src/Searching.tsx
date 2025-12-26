@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 export default function Searching() {
   const [selectedTier, setSelectedTier] = useState<string>('medium')
+  const [categories, setCategories] = useState<string>('')
 
   const followerTiers = [
     { value: 'micro', label: 'Micro (<1K followers)', range: '< 1K' },
@@ -36,9 +37,26 @@ export default function Searching() {
         </p>
       </div>
 
-        <button
-        className={'btn btn-neutral'}
-        >
+      <div className="mb-6">
+        <label htmlFor="categories-input" className="block text-sm font-medium text-gray-700 mb-2">
+          Categories <span className="text-gray-400 font-normal">(optional)</span>
+        </label>
+        <input
+          id="categories-input"
+          type="text"
+          value={categories}
+          onChange={(e) => setCategories(e.target.value)}
+          placeholder="e.g., fitness, health, sports"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
+        <p className="mt-1 text-sm text-gray-500">
+          Enter categories separated by commas
+        </p>
+      </div>
+
+      <button
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200"
+      >
         Search
       </button>
     </div>
