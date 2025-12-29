@@ -343,6 +343,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // Keep the message channel open for async response
     return true 
+} else if (message.type == "search" && message.payload.searchType == 'influencer'){
+    const tier = message.payload.targetFollowerTier || 'medium'
+    const categories = message.payload.categories || []
+    
+    // Build URL with proper category handling
+    const categoriesParam = Array.isArray(categories) && categories.length > 0 
+        ? `&categories=${encodeURIComponent(categories.join(','))}`
+        : ''
+    
+    const url = `https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/query?tier=${tier}${categoriesParam}`
+    
+    console.log('[background] Searching with URL:', url);
+    
+    fetch(url)
+    .then(res => res.json())
+    .then(data => {
+        console.log('[background] Search results:', data);
+        sendResponse({
+            ok: true,
+            success: true,
+            count: data.count || 0,
+            results: data.results || [],
+            tier: data.tier,
+            categories: data.categories
+        });
+    })
+    .catch(err => {
+        console.error('[background] Search failed:', err);
+        sendResponse({
+            ok: false,
+            success: false,
+            error: err.message
+        });
+    });
+    // Keep the message channel open for async response
+    return true
 };
 
   // Return true to indicate asynchronous sendResponse (not used here but safe)
