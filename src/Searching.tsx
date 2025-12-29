@@ -14,9 +14,9 @@ export default function Searching() {
     { value: 'mega', label: 'Mega (1M+ followers)', range: '1M+' },
   ]
 
+  //Only 1 option for now
   const searchTypes = [
-    { value: 'influencer', label: 'Influencer/s'},
-    { value: 'business', label: 'Business/es'}
+    { value: 'influencer', label: 'Influencer/s'}
   ]
 
   return (
@@ -81,6 +81,18 @@ export default function Searching() {
       </div>
 
       <button
+        onClick={() => {
+          chrome.runtime.sendMessage({ 
+            type: 'search',
+            payload: {
+                searchType: selectedSearchType,
+                targetFollowerTier: selectedTier,
+                categories: categories.split(',').map(cat => cat.trim()).filter(cat => cat.length > 0)
+            }
+
+          }, (resp: any) => {
+          })
+        }}
         className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md transition-colors duration-200"
       >
         Search
