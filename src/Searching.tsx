@@ -141,15 +141,14 @@ export default function Searching() {
       ) : (
         // Results Div
         <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">Search Results</h2>
-            <button
-              onClick={handleBackToSearch}
-              className="text-blue-500 hover:text-blue-700 font-medium"
-            >
-              ← Back to Search
-            </button>
-          </div>
+          <button
+            onClick={handleBackToSearch}
+            className="text-blue-500 hover:text-blue-700 font-medium mb-4 self-end"
+          >
+            ← Back to Search
+          </button>
+          
+          <h2 className="text-2xl font-bold mb-6 text-center">Search Results</h2>
 
           <div className="text-sm text-gray-600 mb-4">
             Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} for tier: <span className="font-semibold">{selectedTier}</span>
