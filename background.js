@@ -551,10 +551,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         }
 
+        // Extract username based on platform
+        let username = 'unknown';
+        try {
+          const urlObj = new URL(result.url);
+          if (result.platform === 'tiktok') {
+            // TikTok: https://www.tiktok.com/@username
+            username = result.url.split('@')[1]?.split('/')[0] || 'unknown';
+          } else if (result.platform === 'instagram') {
+            // Instagram: https://www.instagram.com/username
+            const pathParts = urlObj.pathname.split('/').filter(p => p.length > 0);
+            username = pathParts[0] || 'unknown';
+          }
+        } catch (e) {
+          console.error('[background] Error extracting username:', e);
+        }
+
         // Data to be uploaded - only tags
         const uploadData = {
-          username: result.url.split('@')[1]?.split('/')[0] || 'unknown', // Username from URL (e.g., @username)
-          name: result.displayName || result.url.split('@')[1]?.split('/')[0] || 'unknown', // Display name or fallback to username
+          username: username,
+          name: result.displayName || username,
           followers: result.followers,
           tags: allTags,
           profileImageUrl: result.profileImageUrl || null
