@@ -15,31 +15,6 @@ self.addEventListener('activate', () => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || !message.type) return
 
-  if (message.type === 'logInput') {
-    console.log('[background] Received input payload:', message.payload)
-
-    // Save to storage (requires "storage" permission in manifest)
-    try {
-      // Use the async callback to determine success/failure and reply to the sender there.
-      chrome.storage.local.set({ lastInput: message.payload }, () => {
-        if (chrome.runtime.lastError) {
-          // Storage API reported an error (permissions/quota/etc.)
-          console.warn('[background] Failed to save to chrome.storage.local', chrome.runtime.lastError)
-          if (sendResponse) sendResponse({ ok: false, error: chrome.runtime.lastError.message || String(chrome.runtime.lastError) })
-        } else {
-          console.log('[background] Saved payload to chrome.storage.local')
-          if (sendResponse) sendResponse({ ok: true })
-        }
-      })
-    } catch (e) {
-      // chrome.storage may not be available in some environments
-      console.warn('[background] chrome.storage not available', e)
-      if (sendResponse) sendResponse({ ok: false, error: e && e.message ? e.message : String(e) })
-    }
-
-    // Keep the message channel open so we can call sendResponse asynchronously inside the storage callback
-    return true
-  }
 
     if (message.type === 'analyseURL' || message.action === 'scrape') {
         const urlToAnalyse = message.payload?.website || message.url;
@@ -573,7 +548,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           name: result.displayName || username,
           followers: result.followers,
           tags: allTags,
-          profileImageUrl: result.profileImageUrl || null
+          profileImageUrl: result.profileImageUrl || null,
+          platform: result.platform || 'unknown'
         };
 
         console.log('[background] Uploading data to S3 via Lambda...', uploadData);
