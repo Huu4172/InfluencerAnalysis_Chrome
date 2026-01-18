@@ -82,11 +82,20 @@ export default function Popup(): React.ReactElement {
               const followerInfo = resp.followers || 'N/A'
               const username = resp.data?.username || 'Unknown'
               
+              // Check if scraping was incomplete
+              const hasIncompleteData = resp.failedScraping || !resp.followers || postsCount === 0
+              
               // Build organized message
-              let message = `✓ Successfully Scraped!\n\n`
+              let message = hasIncompleteData ? `⚠ Partially Scraped!\n\n` : `✓ Successfully Scraped!\n\n`
               message += `Platform: ${platformName}\n`
               message += `Username: @${username}\n`
-              message += `Followers: ${followerInfo}\n`
+              message += `Followers: ${followerInfo}`
+              
+              // Add warning if no followers found
+              if (!resp.followers) {
+                message += ` (⚠ Missing)`
+              }
+              message += `\n`
               
               if (postsCount > 0 && resp.posts) {
                 message += `\nRecent Posts (${postsCount}):\n`
@@ -95,10 +104,15 @@ export default function Popup(): React.ReactElement {
                   message += `  ${idx + 1}. ${tags}\n`
                 })
               } else {
-                message += `Posts: None collected\n`
+                message += `Posts: None collected (⚠ Missing)\n`
               }
               
-              message += `\n✓ Data saved to database`
+              if (hasIncompleteData) {
+                message += `\n⚠ Some information was missed during scraping`
+                message += `\n(Raw HTML available for manual inspection)`
+              } else {
+                message += `\n✓ Data saved to database`
+              }
               
               setStatus(message)
             } else if (resp?.error) {

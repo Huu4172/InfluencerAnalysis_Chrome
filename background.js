@@ -152,8 +152,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   }
                 }
                 
-                // Method 1: Look for follower count attribute
-                const followerElement = document.querySelector('strong[data-e2e="followers-count"]');
+                // Method 1: Look for follower count attribute - TEMPORARILY DISABLED FOR TESTING
+                const followerElement = document.querySelector('strong[data-e2e="INTENTIONAL-FAIL-followers-count"]');
                 if (followerElement) {
                   followers = followerElement.textContent.trim();
                 }
@@ -575,6 +575,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             posts: result.posts || [],
             debugLogs: result.debugLogs || [],
             s3Key: data.key,
+            failedScraping: result.failedScraping,
             data: {
               username: uploadData.username,
               followers: result.followers,
@@ -591,6 +592,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             html: result.html,
             platform: result.platform,
             url: result.url,
+            failedScraping: result.failedScraping,
             ...result
           });
         });
