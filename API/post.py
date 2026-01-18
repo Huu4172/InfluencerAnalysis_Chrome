@@ -72,17 +72,30 @@ def lambda_handler(event, context):
         )
         
         # Write to DynamoDB
+        # Build item with required fields
+        item = {
+            'followerTier': {'S': get_follower_tier(follower_count_int)},
+            'username': {'S': body.get('username', 'unknown')},
+            'name': {'S': body.get('name', body.get('username', 'unknown'))},
+            'followcount': {'S': follower_count_str},
+            'categories': {'L': []}, 
+            'lastUpdate': {'S': datetime.now().isoformat()}
+        }
+        
+        # Only add profileImageUrl if it exists and is not None
+        profile_image = body.get('profileImageUrl')
+        if profile_image:
+            item['profileImageUrl'] = {'S': profile_image}
+        
+        # Add platform if provided (tiktok or instagram)
+        platform = body.get('platform')
+        if platform:
+            item['platform'] = {'S': platform}
+        
         dynamodb.put_item(
             TableName=TABLE_NAME,
-            Item = {
-                'followerTier' : {'S': get_follower_tier(follower_count_int)},
-                'username' : {'S': body.get('username', 'unknown')},
-                'name': {'S': body.get('name', body.get('username', 'unknown'))},
-                'followcount' : {'S': follower_count_str},
-                'profileImageUrl': {'S': body.get('profileImageUrl', '')},
-                'categories': {'L': []}, 
-                'lastUpdate': {'S': datetime.now().isoformat()}
-            })
+            Item=item
+        )
 
         
         return {
