@@ -38,7 +38,7 @@ npm run dev
 1. Open Chrome and navigate to `chrome://extensions/`
 2. Enable **Developer mode** (toggle in top-right corner)
 3. Click **Load unpacked**
-4. Navigate to the project folder and select the `dist` directory
+4. Navigate to the project folder and select directory
 5. The extension icon should now appear in your Chrome toolbar
 
 ### 4. Verify Installation
