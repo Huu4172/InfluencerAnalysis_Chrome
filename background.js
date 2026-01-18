@@ -152,8 +152,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   }
                 }
                 
-                // Method 1: Look for follower count attribute - TEMPORARILY DISABLED FOR TESTING
-                const followerElement = document.querySelector('strong[data-e2e="INTENTIONAL-FAIL-followers-count"]');
+                // Method 1: Look for follower count attribute
+                const followerElement = document.querySelector('strong[data-e2e="followers-count"]');
                 if (followerElement) {
                   followers = followerElement.textContent.trim();
                 }
