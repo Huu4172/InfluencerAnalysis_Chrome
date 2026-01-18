@@ -51,7 +51,30 @@ export default function Popup(): React.ReactElement {
             setIsLoading(false)
             
             if (resp?.ok || resp?.success) {
-              setStatus(`✓ Success! Found ${resp.followers} followers and ${resp.posts?.length || 0} posts`)
+              const platformName = resp.platform === 'tiktok' ? 'TikTok' : resp.platform === 'instagram' ? 'Instagram' : 'social media'
+              const postsCount = resp.posts?.length || 0
+              const followerInfo = resp.followers || 'N/A'
+              const username = resp.data?.username || 'Unknown'
+              
+              // Build organized message
+              let message = `✓ Successfully Scraped!\n\n`
+              message += `Platform: ${platformName}\n`
+              message += `Username: @${username}\n`
+              message += `Followers: ${followerInfo}\n`
+              
+              if (postsCount > 0 && resp.posts) {
+                message += `\nRecent Posts (${postsCount}):\n`
+                resp.posts.forEach((post: any, idx: number) => {
+                  const tags = post.tags && post.tags.length > 0 ? post.tags.join(', ') : 'no tags'
+                  message += `  ${idx + 1}. ${tags}\n`
+                })
+              } else {
+                message += `Posts: None collected\n`
+              }
+              
+              message += `\n✓ Data saved to database`
+              
+              setStatus(message)
             } else if (resp?.error) {
               setStatus(`✗ Error: ${resp.error}`)
             } else {
@@ -74,7 +97,7 @@ export default function Popup(): React.ReactElement {
       )}
       
       {!isLoading && status && (
-        <div className="mt-4 text-sm">
+        <div className="mt-4 text-sm whitespace-pre-line text-left max-w-full">
           {status}
         </div>
       )}
