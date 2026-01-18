@@ -485,7 +485,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   url: window.location.href,
                   posts: posts,
                   profileImageUrl: profileImageUrl,
-                  debugLogs: __logs
+                  debugLogs: __logs,
+                  failedScraping: !followers || !hasValidPosts
                 });
               } else {
                 // Wait and try again
@@ -587,6 +588,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             ok: false,
             success: false,
             error: err.message,
+            html: result.html,
+            platform: result.platform,
+            url: result.url,
             ...result
           });
         });

@@ -7,6 +7,27 @@ export default function Popup(): React.ReactElement {
   // const [website, setWebsite] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [status, setStatus] = useState('')
+  const [lastScrapedData, setLastScrapedData] = useState<any>(null)
+
+  const handleDownloadHTML = () => {
+    if (!lastScrapedData?.html) {
+      alert('No HTML data available')
+      return
+    }
+
+    const username = lastScrapedData.data?.username || 'page'
+    const blob = new Blob([lastScrapedData.html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${username}_${new Date().toISOString().split('T')[0]}.html`
+    document.body.appendChild(link)
+    link.click()
+    
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="flex flex-col items-center">
@@ -50,6 +71,11 @@ export default function Popup(): React.ReactElement {
             console.log('background response', resp)
             setIsLoading(false)
             
+            // Store response if it has HTML from TikTok/Instagram
+            if (resp?.html && (resp?.platform === 'tiktok' || resp?.platform === 'instagram')) {
+              setLastScrapedData(resp)
+            }
+            
             if (resp?.ok || resp?.success) {
               const platformName = resp.platform === 'tiktok' ? 'TikTok' : resp.platform === 'instagram' ? 'Instagram' : 'social media'
               const postsCount = resp.posts?.length || 0
@@ -76,7 +102,12 @@ export default function Popup(): React.ReactElement {
               
               setStatus(message)
             } else if (resp?.error) {
-              setStatus(`✗ Error: ${resp.error}`)
+              const platform = resp?.platform || ''
+              let errorMsg = `✗ Error: ${resp.error}`
+              if ((platform === 'tiktok' || platform === 'instagram') && resp?.html) {
+                errorMsg += '\n\n(Raw HTML available for download)'
+              }
+              setStatus(errorMsg)
             } else {
               setStatus('✓ Analysis complete')
             }
@@ -100,6 +131,18 @@ export default function Popup(): React.ReactElement {
         <div className="mt-4 text-sm whitespace-pre-line text-left max-w-full">
           {status}
         </div>
+      )}
+      
+      {!isLoading && lastScrapedData?.html && (
+        <button
+          onClick={handleDownloadHTML}
+          className="mt-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download HTML
+        </button>
       )}
     </div>
   )

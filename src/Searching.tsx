@@ -61,6 +61,43 @@ export default function Searching() {
     setError(null)
   }
 
+  const handleDownloadData = async (username: string) => {
+    try {
+      // Fetch complete user data from DynamoDB using username GSI
+      const response = await fetch(`https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/user?username=${username}`)
+      
+      if (!response.ok) {
+        alert(`Failed to fetch data for @${username}. Status: ${response.status}`)
+        return
+      }
+      
+      const result = await response.json()
+      
+      if (!result.ok || !result.data) {
+        alert(result.error || `No data found for @${username}`)
+        return
+      }
+      
+      // Create a blob from the complete user data
+      const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      
+      // Create a temporary download link and trigger it
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${username}_data_${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      
+      // Cleanup
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Download error:', error)
+      alert(`Error downloading data for @${username}`)
+    }
+  }
+
   return (
     <div className="p-4 h-full">
       {!showResults ? (
@@ -163,20 +200,24 @@ export default function Searching() {
             ) : (
               <div className="space-y-4">
                 {searchResults.map((result) => (
-                  <a 
+                  <div 
                     key={result.username}
-                    href={`https://www.tiktok.com/@${result.username}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                    className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-4">
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg">{result.name}</h3>
-                        <p className="text-gray-600">@{result.username}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {result.followcount} followers • {result.followerTier} tier
-                        </p>
+                        <a 
+                          href={`https://www.tiktok.com/@${result.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block hover:text-blue-600 transition-colors"
+                        >
+                          <h3 className="font-bold text-lg">{result.name}</h3>
+                          <p className="text-gray-600">@{result.username}</p>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {result.followcount} followers • {result.followerTier} tier
+                          </p>
+                        </a>
                         {result.categories && result.categories.length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-2">
                             {result.categories.map((cat, idx) => (
@@ -190,8 +231,18 @@ export default function Searching() {
                           </div>
                         )}
                       </div>
+                      <button
+                        onClick={() => handleDownloadData(result.username)}
+                        className="flex-shrink-0 px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-md transition-colors duration-200 flex items-center gap-1"
+                        title="Download user data"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </button>
                     </div>
-                  </a>
+                  </div>
                 ))}
               </div>
             )}
