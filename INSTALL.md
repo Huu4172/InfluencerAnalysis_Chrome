@@ -7,8 +7,6 @@ Complete setup guide for the Social Media Influencer Analysis Chrome Extension f
 - Node.js (v16 or higher)
 - npm or yarn
 - Chrome browser
-- AWS Account with appropriate permissions
-- AWS CLI configured with credentials
 
 ## Part 1: Chrome Extension Setup
 
