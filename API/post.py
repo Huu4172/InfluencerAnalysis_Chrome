@@ -92,6 +92,28 @@ def lambda_handler(event, context):
         if platform:
             item['platform'] = {'S': platform}
         
+        # Add tags/categories from the scraped data
+        tags = body.get('tags', [])
+        if tags:
+            item['categories'] = {'L': [{'S': tag} for tag in tags]}
+        
+        # Add posts information if available
+        posts = body.get('posts', [])
+        if posts:
+            posts_list = []
+            for post in posts:
+                post_item = {'M': {}}
+                if post.get('postUrl'):
+                    post_item['M']['postUrl'] = {'S': post['postUrl']}
+                if post.get('captionPreview'):
+                    post_item['M']['captionPreview'] = {'S': post['captionPreview']}
+                if post.get('viewCount'):
+                    post_item['M']['viewCount'] = {'S': post['viewCount']}
+                if post.get('tags'):
+                    post_item['M']['tags'] = {'L': [{'S': tag} for tag in post['tags']]}
+                posts_list.append(post_item)
+            item['posts'] = {'L': posts_list}
+        
         dynamodb.put_item(
             TableName=TABLE_NAME,
             Item=item

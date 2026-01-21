@@ -205,12 +205,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     }
                     }
 
-                    console.log('[Scraper] Post', idx + 1, ':', tags.length, 'tags');
+                    // Get view count from video-views element
+                    let viewCount = null;
+                    const viewElement = item.querySelector('strong[data-e2e="video-views"]');
+                    if (viewElement) {
+                      viewCount = viewElement.textContent.trim();
+                    }
+
+                    console.log('[Scraper] Post', idx + 1, ':', tags.length, 'tags', viewCount ? `(${viewCount} views)` : '(no view count)');
 
                     return {
                     postUrl: postUrl,
                     tags: tags,
-                    captionPreview: captionPreview
+                    captionPreview: captionPreview,
+                    viewCount: viewCount
                     };
                 }).filter(post => post.postUrl); // Only include posts with valid URLs
                 }
@@ -550,7 +558,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           followers: result.followers,
           tags: allTags,
           profileImageUrl: result.profileImageUrl || null,
-          platform: result.platform || 'unknown'
+          platform: result.platform || 'unknown',
+          posts: result.posts || []
         };
 
         console.log('[background] Uploading data to S3 via Lambda...', uploadData);
