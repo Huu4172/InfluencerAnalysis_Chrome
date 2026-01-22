@@ -46,3 +46,29 @@ npm run dev
 3. Navigate to a TikTok profile (e.g., `https://www.tiktok.com/@username`)
 4. Click the extension icon and test the scraping functionality
 
+### 5. Reloading the Extension After Changes
+
+When you make changes to any files in the project, you need to reload the extension:
+
+**After modifying code files:**
+
+1. Run the build command to recompile:
+   ```bash
+   npm run build
+   ```
+
+2. Go to `chrome://extensions/`
+
+3. Find your extension and click the **refresh/reload icon** (circular arrow)
+
+4. Hard refresh any open tabs using the extension (`Cmd+Shift+R` on Mac, `Ctrl+Shift+R` on Windows/Linux)
+
+**Files that require reload:**
+- `background.js` - Service worker (scraping logic)
+- `popup.js`, `popup.tsx` - Popup interface
+- `src/` folder - Any React components
+- `manifest.json` - Extension configuration
+- CSS/styling files
+
+**Development tip:** Use `npm run dev` for watch mode - it will auto-rebuild on file changes, but you still need to manually reload the extension in Chrome.
+
