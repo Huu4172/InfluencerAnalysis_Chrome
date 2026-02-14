@@ -5,7 +5,7 @@ This document describes how data flows through the system from initial scraping 
 ## Overview
 
 The system follows a two-stage data processing pipeline:
-1. **Stage 1**: Real-time scraping from TikTok/Instagram profiles
+1. **Stage 1**: Real-time scraping from TikTok/Instagram profiles (Using the extension)
 2. **Stage 2**: Automated AI categorization using Kiro-CLI (configurable intervals)
 
 ## Data Flow Diagram

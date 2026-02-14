@@ -1,6 +1,6 @@
 # Social Media Influencer Analysis Chrome Extension
 
-> 📦 **[Installation Guide](INSTALL.md)** | 📖 [Documentation](#features)
+> 📦 **[Installation Guide](docs/INSTALL.md)** | 📊 **[Data Collection Flow](docs/DATA_COLLECTION_FLOW.md)** | 📖 [Documentation](#features)
 
 A Chrome extension for scraping and analyzing TikTok and Instagram influencer profiles. Automatically extracts follower counts, posts, hashtags, and stores data in AWS DynamoDB with S3 integration.
 
