@@ -229,12 +229,11 @@ File location: `scrapes/YYYYMMDD-HHMMSS.json`
 | Step | Component | Action |
 |------|-----------|--------|
 | 1 | Kiro-CLI | User specifies automation interval via command |
-| 2 | Scheduler | Triggers AI job at specified time interval |
-| 3 | AI Service | Reads each user's S3 JSON file |
-| 4 | Analyzer | Processes posts, captions, and tags |
-| 5 | Categorizer | Generates AI-based categories with confidence scores |
-| 6 | DynamoDB | Updates user entry with new categories |
-| 7 | Notification | (Optional) Notifies user of categorization update |
+| 2 | AI Service | Reads each user's S3 JSON file |
+| 3 | Analyzer | Processes posts, captions, and tags |
+| 4 | Categorizer | Generates AI-based categories with confidence scores |
+| 5 | DynamoDB | Updates user entry with new categories |
+| 6 | Notification | (Optional) Notifies user of categorization update |
 
 **Execution**: Background process, doesn't block user interface
 
