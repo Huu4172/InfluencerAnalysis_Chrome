@@ -285,3 +285,24 @@ Returns complete profile data from DynamoDB.
 - **S3**: Indefinite (versioned by timestamp)
 - **Recommended Cleanup**: Archive data older than 1 year to S3 Glacier
 
+---
+
+## AI Technology Stack
+
+### MCP CAO Server (Model Context Protocol - CLI Agent Orchestrator)
+
+The AI categorization in Stage 2 is powered by **AWS CLI Agent Orchestrator**, which provides intelligent automation capabilities through the Model Context Protocol.
+
+**Key Features:**
+- **Automated Task Orchestration**: Schedules and manages AI categorization jobs at configurable intervals
+- **Context-Aware Processing**: Maintains context across multiple influencer profiles for consistent categorization
+- **CLI Integration**: Seamlessly integrates with Kiro-CLI for easy automation setup
+- **Scalable Architecture**: Handles batch processing of large datasets efficiently
+
+**Learn More:**
+- **GitHub Repository**: [AWS CLI Agent Orchestrator](https://github.com/awslabs/cli-agent-orchestrator)
+- **Documentation**: Comprehensive guides for setup, configuration, and advanced usage
+- **MCP Protocol**: Industry-standard protocol for AI agent communication and orchestration
+
+
+
