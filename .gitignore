@@ -1,5 +1,7 @@
 # Node deps and lock files (keep lockfile if you want determinism)
 node_modules/
+package.json
+package-lock.json
 
 # Build outputs (optional: see note below)
 dist/
