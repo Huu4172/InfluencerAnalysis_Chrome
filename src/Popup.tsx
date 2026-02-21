@@ -111,7 +111,7 @@ export default function Popup(): React.ReactElement {
                 message += `\n⚠ Some information was missed during scraping`
                 message += `\n(Raw HTML available for manual inspection)`
               } else {
-                message += `\n✓ Data saved to database`
+                message += `\n✓ Raw HTML uploaded to S3`
               }
               
               setStatus(message)

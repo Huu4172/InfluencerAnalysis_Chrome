@@ -10,13 +10,23 @@
     ],
   "host_permissions": [
     "*://*.tiktok.com/*",
+    "*://*.instagram.com/*",
     "https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
   "action": {
-    "default_icon": "furious.png",
+    "default_icon": {
+      "16": "icon128.png",
+      "48": "icon128.png",
+      "128": "icon128.png"
+    },
     "default_popup": "dist/popup.html"
+  },
+  "icons": {
+    "16": "icon128.png",
+    "48": "icon128.png",
+    "128": "icon128.png"
   }
 }

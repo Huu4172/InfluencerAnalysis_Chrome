@@ -551,28 +551,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           console.error('[background] Error extracting username:', e);
         }
 
-        // Data to be uploaded - only tags
-        const uploadData = {
+        const uploadPayload = {
           username: username,
-          name: result.displayName || username,
-          followers: result.followers,
-          tags: allTags,
-          profileImageUrl: result.profileImageUrl || null,
           platform: result.platform || 'unknown',
-          posts: result.posts || []
+          url: result.url,
+          html: result.html,
+          scrapedAt: new Date().toISOString()
         };
 
-        console.log('[background] Uploading data to S3 via Lambda...', uploadData);
+        console.log('[background] Uploading raw HTML to S3 via Lambda...');
 
         // Upload to S3 via Lambda
         fetch('https://hetprm3fz5.execute-api.ap-southeast-1.amazonaws.com/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(uploadData)
+          body: JSON.stringify(uploadPayload)
         })
         .then(res => res.json())
         .then(data => {
-          console.log('[background] Uploaded to DynamoDB and S3:', data);
+          console.log('[background] Uploaded raw HTML to S3:', data);
           sendResponse({ 
             ok: true,
             success: true,
@@ -586,7 +583,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             s3Key: data.key,
             failedScraping: result.failedScraping,
             data: {
-              username: uploadData.username,
+              username: username,
               followers: result.followers,
               tags: allTags
             }
